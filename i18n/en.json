@@ -1,0 +1,11 @@
+{
+  "title": "Get Focused",
+  "add": "Add a site, then Enter",
+  "none": "No sites yet",
+  "minutes": "%1m",
+  "blocked": "Blocked until %1",
+  "stop": "Locked until the timer ends",
+  "tooltip": "Site Block",
+  "install": "Install Helper",
+  "sites": "SITES"
+}

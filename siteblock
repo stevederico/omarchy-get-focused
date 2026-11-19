@@ -1,0 +1,20 @@
+#!/bin/bash
+# Root helper. Install: sudo install -m 755 -o root siteblock /usr/local/bin/siteblock
+# Usage: siteblock on MINUTES domain...   |   siteblock off
+set -eu
+H=/etc/hosts; S="# siteblock-start"; E="# siteblock-end"; U=/run/siteblock-until
+strip() { sed -i "/^$S\$/,/^$E\$/d" "$H"; }
+case "${1:-}" in
+  on)
+    m="$2"; shift 2
+    [[ "$m" =~ ^[0-9]{1,4}$ && "$m" -gt 0 ]] || exit 1
+    [ -e "$U" ] && exit 0
+    for d in "$@"; do [[ "$d" =~ ^([a-z0-9-]+\.)+[a-z]{2,}$ ]] || exit 1; done
+    strip
+    { echo "$S"; for d in "$@"; do echo "0.0.0.0 $d"; echo "0.0.0.0 www.$d"; echo "::1 $d"; echo "::1 www.$d"; done; echo "$E"; } >> "$H"
+    echo $(( $(date +%s) + m * 60 )) > "$U"; chmod 644 "$U"
+    systemd-run --quiet --unit=siteblock-off --on-active="${m}m" /usr/local/bin/siteblock off
+    ;;
+  off) strip; rm -f "$U" ;;
+  *) exit 1 ;;
+esac
