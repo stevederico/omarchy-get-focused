@@ -1,8 +1,8 @@
 #!/bin/bash
-# Root helper. Install: sudo install -m 755 -o root siteblock /usr/local/bin/siteblock
-# Usage: siteblock on MINUTES domain...   |   siteblock off
+# Root helper. Install: sudo install -m 755 -o root getfocused /usr/local/bin/getfocused
+# Usage: getfocused on MINUTES domain...   |   getfocused off
 set -eu
-H=/etc/hosts; S="# siteblock-start"; E="# siteblock-end"; U=/run/siteblock-until
+H=/etc/hosts; S="# getfocused-start"; E="# getfocused-end"; U=/run/getfocused-until
 strip() { sed -i "/^$S\$/,/^$E\$/d" "$H"; }
 case "${1:-}" in
   on)
@@ -13,7 +13,7 @@ case "${1:-}" in
     strip
     { echo "$S"; for d in "$@"; do echo "0.0.0.0 $d"; echo "0.0.0.0 www.$d"; echo "::1 $d"; echo "::1 www.$d"; done; echo "$E"; } >> "$H"
     echo $(( $(date +%s) + m * 60 )) > "$U"; chmod 644 "$U"
-    systemd-run --quiet --unit=siteblock-off --on-active="${m}m" /usr/local/bin/siteblock off
+    systemd-run --quiet --unit=getfocused-off --on-active="${m}m" /usr/local/bin/getfocused off
     ;;
   off) strip; rm -f "$U" ;;
   *) exit 1 ;;

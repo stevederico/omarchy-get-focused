@@ -7,12 +7,12 @@ import qs.Ui
 
 BarWidget {
   id: root
-  moduleName: "sd.siteblock"
+  moduleName: "sd.getfocused"
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
   readonly property string home: Quickshell.env("HOME")
-  readonly property string sitesPath: home + "/.config/sd-siteblock/sites"
+  readonly property string sitesPath: home + "/.config/sd-getfocused/sites"
   property var sites: []
   property real until: 0
   property real now: Date.now() / 1000
@@ -45,7 +45,7 @@ BarWidget {
 
   function start(minutes) {
     if (blocking || !installed || sites.length === 0) return
-    blockProc.command = ["sudo", "-n", "/usr/local/bin/siteblock", "on", String(minutes)].concat(sites)
+    blockProc.command = ["sudo", "-n", "/usr/local/bin/getfocused", "on", String(minutes)].concat(sites)
     total = minutes * 60
     picked = minutes
     blockProc.running = true
@@ -57,7 +57,7 @@ BarWidget {
 
   Process {
     id: stopProc
-    command: ["sudo", "-n", "/usr/local/bin/siteblock", "off"]
+    command: ["sudo", "-n", "/usr/local/bin/getfocused", "off"]
     onExited: { untilFile.reload(); root.until = 0 }
   }
 
@@ -70,7 +70,7 @@ BarWidget {
 
   FileView {
     id: untilFile
-    path: "/run/siteblock-until"
+    path: "/run/getfocused-until"
     printErrors: false
     onLoaded: { root.now = Date.now() / 1000; root.until = parseInt(text()) || 0 }
     onLoadFailed: { root.now = Date.now() / 1000; root.until = 0 }
@@ -79,7 +79,7 @@ BarWidget {
   property bool installed: false
   Process {
     id: checkProc
-    command: ["test", "-x", "/usr/local/bin/siteblock"]
+    command: ["test", "-x", "/usr/local/bin/getfocused"]
     running: true
     onExited: function(code) { root.installed = code === 0 }
   }
@@ -89,12 +89,12 @@ BarWidget {
     onExited: checkProc.running = true
   }
 
-  Process { id: mkdir; command: ["mkdir", "-p", root.home + "/.config/sd-siteblock"]; running: true }
+  Process { id: mkdir; command: ["mkdir", "-p", root.home + "/.config/sd-getfocused"]; running: true }
   Process {
     id: blockProc
     onExited: function(code) {
       untilFile.reload()
-      if (code !== 0) root.bar.run("omarchy-notification-send 'Site Block' 'Helper not installed or sudo rule missing'")
+      if (code !== 0) root.bar.run("omarchy-notification-send 'Get Focused' 'Helper not installed or sudo rule missing'")
     }
   }
 
